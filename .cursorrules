@@ -1,0 +1,234 @@
+################################################################################
+project:
+  name: unit-converter
+  language: python
+  python_version: "3.11+"
+  domain: length unit conversion (meter, feet, yard + dynamic registration)
+  anchor_unit: meter
+  constants:
+    meters_per_feet: 0.3048
+    meters_per_yard: 0.9144
+    display_decimal_places: 1
+    display_rounding: ROUND_HALF_UP
+
+################################################################################
+code_style:
+  formatter: black
+  import_sorter: isort
+  profile: black
+  line_length: 88
+  type_hints: required
+  naming:
+    modules_functions_variables: snake_case
+    classes_exceptions: PascalCase
+    constants: UPPER_SNAKE_CASE
+    private: leading_underscore
+  rules:
+    - 모든 공개 함수·메서드에 매개변수·반환 타입 힌트를 붙인다
+    - from __future__ import annotations 사용을 권장한다
+    - Black·isort 적용 후 diff를 PR 기준으로 맞춘다
+    - 문자열 오류 메시지는 Boundary 계약에 정의된 exact match 문구만 사용한다
+
+################################################################################
+architecture:
+  pattern: BCE_dual_track
+  layers:
+    entity:
+      alias: domain
+      responsibility: UnitRegistry, ConversionEngine, LengthQuantity, invariants
+      must_not: input, print, json, csv, open, pathlib for config
+    control:
+      alias: application
+      responsibility: use-case orchestration, command dispatch, registry wiring
+      must_not: conversion formulas, file format parsing details
+    boundary:
+      responsibility: CLI/input parse, output render (table/json/csv), error envelope mapping
+      must_not: hardcoded conversion ratios, direct config file reads
+    data:
+      responsibility: UnitDefinitionRepository, JSON/YAML load, DTO to registry
+      must_not: conversion math, user-facing message strings
+  dependency_direction:
+    allowed:
+      - boundary -> control
+      - boundary -> entity
+      - control -> entity
+      - control -> data
+      - data -> entity
+      - tests -> any production layer
+    forbidden:
+      - entity -> boundary
+      - entity -> control
+      - entity -> data
+      - entity -> tests
+  ocp:
+    new_unit: register via UnitRegistry or config only
+    new_format: new OutputRenderer strategy only
+
+################################################################################
+tdd_rules:
+  red_phase:
+    description: >
+      pytest RED — Domain/Boundary/Data 계약·Invariant·RED 목록에 맞는 테스트만 먼저 작성하고,
+      구현 없이 실패를 확인한다. README 비율(1m=3.28084ft, 1m=1.09361yd) 및 고정 오류 문구를 테스트로 고정한다.
+    rules:
+      - RED 목록(Test-ID) 또는 BCE Traceability에 매핑된 케이스만 추가한다
+      - Domain 테스트는 Registry·Engine 실객체를 사용하고 I/O·print·파일을 넣지 않는다
+      - Boundary 테스트는 Parser·Renderer·오류 매핑만 검증하고 Engine은 Mock/Fake로 주입한다
+      - 실패 assert는 수치(ε), 개수, 순서, exact message 문자열로 측정 가능하게 작성한다
+      - 표/JSON/CSV 각 포맷·파싱·음수·미지원 단위·동적 등록·비율 정확도 분류를 빠짐없이 RED에 포함한다
+      - 테스트 실행 시 의도적 실패(미구현·NotImplemented)를 GREEN 전제로 문서화한다
+    must_not:
+      - 구현 코드를 먼저 작성하거나 테스트를 구현에 맞게 뒤집지 않는다
+      - "대충 통과"하는 assert(존재만 확인, 범위 없는 True)를 쓰지 않는다
+      - RED 단계에서 전체 통합·CLI 수동 확인로 요구사항을 대체하지 않는다
+      - README 상수·ErrorEnvelope 문구를 임의로 완화·생략하지 않는다
+      - Domain 레이어에 input/print/json/csv/open을 넣지 않는다
+
+  green_phase:
+    description: >
+      최소 구현으로 RED 테스트를 전부 GREEN 한다. OCP/SRP·BCE 의존 방향을 깨지 않고
+      Domain → Boundary → Data → Integration 순으로 좁혀 간다.
+    rules:
+      - 한 번에 하나의 실패 테스트(또는 동일 Invariant 묶음)만 GREEN 대상으로 한다
+      - Domain은 meter 앵커 환산(D-INV-03~05)과 Registry 등록 규칙만 구현한다
+      - Boundary는 파싱·고정 오류 code/message·표시 반올림(1자리 ROUND_HALF_UP)만 구현한다
+      - Data는 UnitDefinitionRepository.load와 JSON(또는 합의된 YAML) 스키마만 구현한다
+      - GREEN 후 해당 Test-ID·Invariant가 Traceability Matrix에 연결됨을 유지한다
+      - 회귀 앵커(A-01, A-03, A-06, T-01, J-01, C-01)는 삭제·약화하지 않는다
+    must_not:
+      - GREEN을 위해 공개 API·오류 문구·반올림 규칙을 테스트 없이 변경하지 않는다
+      - 여러 Invariant를 한 함수에 몰아 SRP를 깨지 않는다
+      - Boundary에 환산 비율 하드코딩·파일 직접 읽기를 넣지 않는다
+      - 통과시키기 위해 테스트를 skip/xfail로 돌리지 않는다(의도적 RED 제외)
+      - Integration GREEN 전 Domain·Boundary·Data 단위 RED가 비어 있지 않게 하지 않는다
+
+  refactor_phase:
+    description: >
+      전 테스트 GREEN 상태에서만 구조·이름·중복을 정리한다. 행위·계약·수치·문구·출력 순서는 불변이다.
+    rules:
+      - 리팩터 전후 pytest 전체 스위트를 실행하고 diff 없음을 확인한다
+      - 중복 제거·포트 추출·Renderer/Parser 분리는 테스트 변경 없이 수행한다
+      - 새 단위·포맷·설정 소스 추가는 Registry/Strategy 확장으로만 한다(OCP)
+      - 커버리지 목표(Domain line≥95%, Boundary≥90%, Data≥85%) 미달 시 테스트 보강 후 재리팩터한다
+      - AI 생성 코드는 계약·RED 목록과 diff 검토 후 병합한다
+    must_not:
+      - RED·GREEN 없이 "정리" 명목으로 동작·스키마·에러 메시지를 바꾸지 않는다
+      - refactor 중 새 요구사항(포맷·단위·검증 규칙)을 섞지 않는다 — 새 요구는 RED부터
+      - 테스트를 리팩터 핑계로 통합·삭제하지 않는다
+      - Domain이 Boundary/Data를 import하도록 의존성을 뒤집지 않는다
+      - 표시 반올림·JSON 필드 순서·CSV 헤더를 "보기 좋게" 변경하지 않는다
+
+################################################################################
+testing:
+  framework: pytest
+  coverage_tool: pytest-cov
+  python_version: "3.11+"
+  layout: tests mirror layer (tests/entity, tests/boundary, tests/data, tests/integration)
+  pattern: AAA
+  aaa:
+    arrange: fixture·registry·mock engine setup
+    act: single public call or parser/render entry
+    assert: one logical outcome per test (numeric epsilon or exact string)
+  fixtures:
+    - session: defaults_registry (meter, feet, yard from README constants)
+    - function: empty_registry, tmp_config_path (tmp_path factory)
+    - boundary: fake_conversion_engine, capsys for stdout contract only in boundary tests
+    - no_network: all tests offline
+  commands:
+    run: pytest
+    cov: pytest --cov=entity --cov=boundary --cov=control --cov=data --cov-report=term-missing
+  coverage_thresholds:
+    entity_line: 95
+    entity_branch: 90
+    boundary_line: 90
+    boundary_branch: 85
+    data_line: 85
+    data_branch: 80
+  regression_anchors:
+    - A-01
+    - A-03
+    - A-06
+    - T-01
+    - J-01
+    - C-01
+
+################################################################################
+forbidden:
+  - id: debug_print_spam
+    pattern: "print(...) in entity/, control/, data/ or print left after debugging"
+    reason: stdout side effect breaks layer purity and flaky boundary tests
+    alternative: logging.getLogger(__name__) at WARNING+ or return structured ErrorEnvelope in boundary
+
+  - id: magic_number_hardcoding
+    pattern: "literal 3.28084, 1.09361, 0.3048 in boundary/ or control/ outside tests"
+    reason: duplicates README contract and blocks config externalization (OCP)
+    alternative: project.constants, config/units.json, or MetersPerUnit in entity registry
+
+  - id: bare_except_swallow
+    pattern: "except: or except Exception: pass without re-raise in production code"
+    reason: hides NegativeMagnitudeError, parse errors, and breaks exact error mapping
+    alternative: catch specific domain/boundary exceptions; map to ErrorEnvelope at boundary only
+
+  - id: global_mutable_state
+    pattern: "module-level registry = {} mutated by register() without injection"
+    reason: test order dependence and breaks SRP/isolated RED
+    alternative: UnitRegistry instance passed into ConversionEngine and control wiring
+
+  - id: missing_type_hints
+    pattern: "def foo(x, y): without -> and param types on public API"
+    reason: violates code_style and weakens contract clarity for AI/refactor
+    alternative: full hints; use TypeAlias, Protocol for ports (UnitDefinitionRepository)
+
+  - id: entity_io
+    pattern: "input(), open(), Path.read_text in entity/"
+    reason: violates BCE entity purity (D-INV, architecture.forbidden)
+    alternative: boundary parser + data repository load -> registry snapshot
+
+  - id: skip_without_red_reason
+    pattern: "@pytest.mark.skip on failing test to force green"
+    reason: violates tdd_rules.green_phase.must_not
+    alternative: implement minimal green or keep RED with NotImplementedError documented
+
+################################################################################
+file_structure:
+  tree: |
+    project_root/
+    ├── boundary/           # parsers, renderers (table/json/csv), error_mapper, cli_adapter
+    │   ├── parser.py
+    │   ├── renderers/
+    │   └── errors.py
+    ├── control/            # app controller, command handlers, wiring (no I/O format details)
+    │   └── converter_app.py
+    ├── entity/             # domain: registry, engine, quantity, exceptions (pure)
+    │   ├── registry.py
+    │   ├── engine.py
+    │   └── models.py
+    ├── data/               # repositories, json/yaml sources, DTOs
+    │   ├── repository.py
+    │   └── sources/
+    ├── config/             # units.json (optional units.yaml)
+    │   └── units.json
+    ├── tests/
+    │   ├── entity/
+    │   ├── boundary/
+    │   ├── data/
+    │   └── integration/
+    ├── pyproject.toml      # black, isort, pytest, pytest-cov
+    └── README.md
+  entrypoint: boundary/cli_adapter.py or main.py delegates to control only
+
+################################################################################
+ai_behavior:
+  layer_violation: forbidden
+  rules:
+    - entity/control/boundary/data 역할을 섞지 않는다 — 의심 시 architecture.dependency_direction을 따른다
+    - 요구 변경·버그 수정은 RED 테스트 추가 후 최소 GREEN, 그 다음 refactor_phase만 구조 변경
+    - refactor는 pytest 전체 GREEN 확인 후에만 제안·적용한다
+    - README 상수·고정 오류 문구·출력 포맷은 테스트와 함께만 변경한다
+    - 한 턴에 RED/GREEN/refactor 한 단계만 진행한다
+    - forbidden 목록(pattern)에 해당하는 코드를 생성하지 않는다
+  must_not:
+    - 레이어 위반 import (entity -> boundary 등)
+    - 테스트 없이 구현 파일 대량 생성
+    - GREEN 미확인 상태에서 리네임·대규모 이동
+    - forbidden.pattern에 맞는 패턴으로 “빠른 수정” 제안
