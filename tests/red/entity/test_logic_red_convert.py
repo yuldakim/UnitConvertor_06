@@ -30,8 +30,13 @@ class TestLogicRedConvert:
         assert result == pytest.approx(YARD_PER_METER, abs=1e-5)
         assert result == pytest.approx(1.09361, abs=1e-5)
 
-    def test_logic_convert_feet_to_meter_reverse_within_1e_5(self) -> None:
-        pytest.fail("RED")
+    def test_logic_convert_feet_to_meter_reverse_within_1e_5(
+        self, defaults_registry: UnitRegistry
+    ) -> None:
+        # TC-B-03: convert("feet", 1.0, "meter")
+        engine = ConversionEngine(defaults_registry)
+        result = engine.convert("feet", 1.0, "meter")
+        assert result == pytest.approx(0.30480, abs=1e-5)
 
     def test_logic_convert_all_meter_returns_all_registered_units(self) -> None:
         pytest.fail("RED")
