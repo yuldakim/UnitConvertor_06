@@ -4,12 +4,21 @@ from __future__ import annotations
 
 import pytest
 
+from control.converter_app import ConverterApp
+from entity.constants import FEET_PER_METER
+
 
 class TestUiRedConvertHappyPath:
     """TC-A-01, TC-A-05"""
 
-    def test_ui_convert_meter_2_5_returns_conversion_result(self) -> None:
-        pytest.fail("RED")
+    def test_ui_convert_meter_2_5_returns_conversion_result(
+        self, converter_app: ConverterApp
+    ) -> None:
+        # TC-A-01: "meter:2.5" Happy path
+        internal = converter_app.convert("meter", 2.5, "feet")
+        assert internal == pytest.approx(2.5 * FEET_PER_METER, abs=1e-5)
+        output = converter_app.handle_convert_line("meter:2.5")
+        assert "2.5 meter = 8.2 feet" in output.splitlines()
 
     def test_ui_table_output_preserves_source_unit_and_value(self) -> None:
         pytest.fail("RED")
