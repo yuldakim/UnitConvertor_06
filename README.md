@@ -15,6 +15,7 @@
 - [기여 가이드 (Contributing)](#기여-가이드-contributing)
 - [라이선스](#라이선스)
 - [RED 단계 To-Do 리스트](#red-단계-to-do-리스트)
+- [GREEN 단계 To-Do 리스트](#green-단계-to-do-리스트)
 
 ---
 
@@ -358,10 +359,10 @@ meter,2.5,yard,2.7
 
 ## RED 단계 To-Do 리스트
 
-> 이 체크리스트는 [test_plan.md](docs/test_plan.md) 기반으로 생성되었습니다.
-> 각 항목은 RED(실패 테스트 작성) 완료 시 체크합니다.
+> 기준: [test_plan.md](docs/test_plan.md), [docs/testing/RED-dual-track-tests.md](docs/testing/RED-dual-track-tests.md)  
+> 각 항목은 **`tests/red/`에 의도적 실패(RED) 테스트가 작성**되었을 때 체크합니다. (구현 GREEN 여부와 무관)
 
-### Track A — UI / Boundary 테스트
+### Track A — UI / Boundary 테스트 (RED 스켈레톤)
 
 - [x] TC-A-01: 정상 입력 "meter:2.5" → 변환 결과 반환 (Happy Path)
 - [x] TC-A-02: ":" 없는 입력 → ValueError / TypeError 발생
@@ -371,7 +372,7 @@ meter,2.5,yard,2.7
 - [x] TC-A-06: JSON 출력 스키마 (`meter:2.5`, feet 표시 `8.2`)
 - [x] TC-A-07: 소수점 파싱 실패 "meter:abc" → ValueError / TypeError 발생
 
-### Track B — Domain / Logic 테스트
+### Track B — Domain / Logic 테스트 (RED 스켈레톤)
 
 - [x] TC-B-01: convert("meter", 2.5, "feet") == 8.20210 (오차 1e-5)
 - [x] TC-B-02: convert("meter", 1.0, "yard") == 1.09361 (오차 1e-5)
@@ -381,16 +382,60 @@ meter,2.5,yard,2.7
 - [x] TC-B-06: loadConfig(유효한 경로) → 비율 정상 로드
 - [x] TC-B-07: loadConfig(없는 경로) → 기본값(3.28084/1.09361) 유지
 
-### 커버리지 목표
-
-- [ ] Domain Logic: 95%+ (pip install pytest-cov)
-- [ ] Boundary Layer: 85%+
-- [ ] 전체 TOTAL: 90%+
-
-### 결함 목록 연결
+### RED 산출·문서
 
 - [x] defect_list.md 생성 및 발견 결함 기록 — [docs/defect_list.md](docs/defect_list.md) (DEF-001~008)
-- [x] 모든 결함 수정 후 회귀 테스트 통과 확인 — BCE 스택 `pytest` 33 passed (2026-05-21); 레거시 CLI 잔여 Open → DEF-002,003,006~008
+- [x] Dual-Track RED 명세 — [docs/testing/RED-dual-track-tests.md](docs/testing/RED-dual-track-tests.md)
+
+---
+
+## GREEN 단계 To-Do 리스트
+
+> 기준: [test_plan.md](docs/test_plan.md), `.cursorrules` `green_phase` (Domain → Boundary → Data)  
+> 각 항목은 **`tests/red/` 해당 TC가 pytest PASS**일 때 체크합니다. (1 TC ≈ 1 커밋 권장)
+
+### Track A — UI / Boundary (GREEN)
+
+- [x] TC-A-01: `meter:2.5` → table Happy Path · 내부 feet ≈ 8.20210 · 표시 `8.2 feet`
+- [x] TC-A-02: `meter 2.5` → `ValueError` / `TypeError` · `ERR_INVALID_FORMAT` 문구
+- [x] TC-A-03: `meter:-1.0` → `ValueError` / `TypeError` · 음수 거부
+- [x] TC-A-04: `parsec:1.0` → `ValueError` / `TypeError` · `Unknown unit: parsec`
+- [x] TC-A-05: table 출력에 원 입력 `2.5 meter` 보존 (3줄)
+- [x] TC-A-06: JSON `source` + `conversions[]` · feet 표시값 `8.2`
+- [x] TC-A-07: `meter:abc` → `ValueError` / `TypeError` · `Invalid number: abc`
+
+### Track B — Domain / Logic (GREEN)
+
+- [x] TC-B-01: `convert("meter", 2.5, "feet")` == 8.20210 (오차 1e-5)
+- [x] TC-B-02: `convert("meter", 1.0, "yard")` == 1.09361 (오차 1e-5)
+- [x] TC-B-03: `convert("feet", 1.0, "meter")` == 0.30480 (역변환)
+- [x] TC-B-04: `convertAll("meter", 1.0)` → 3단위 · feet/yard 비율 유지
+- [x] TC-B-05: `registerUnit("cubit", 0.4572)` 후 cubit→feet · batch 4단위
+- [x] TC-B-06: `loadConfig` 유효 JSON/YAML → `meters_per_unit` 0.3048 등 적용
+- [x] TC-B-07: `loadConfig` 없는 경로 → 기본 3단위 · `3.28084`/`1.09361` 유지
+
+### 통합·품질 (GREEN)
+
+- [x] `tests/red/` 전 TC PASS — 17건 (`pytest tests/red`)
+- [x] BCE + RED 전체 PASS — 50건 (`pytest tests`)
+- [x] `UnitConverter.main` → `ConverterApp` 위임 (main에 환산 로직·비율 인라인 없음)
+- [x] boundary/control에 비율 상수 `3.28084` / `1.09361` 인라인 없음 (`entity/constants`·Registry)
+- [ ] REFACTOR 단계 (GREEN 전체 유지 후 구조 정리 — 별도 커밋)
+
+### 커버리지 목표 (`pytest-cov`, 2026-05-21 기준)
+
+```bash
+pytest --cov=entity --cov=boundary --cov=control --cov=data --cov-report=term-missing tests/
+```
+
+- [x] Domain Logic (`entity/`, `__init__.py` 제외): **≥ 95%** (실측 약 99%)
+- [x] Boundary Layer (`boundary/`, `__init__.py` 제외): **≥ 85%** (실측 약 89%)
+- [ ] 전체 TOTAL (4레이어 합산): **≥ 90%** (실측 약 89% — `parser`·`converter_app` 미커버 분 보강 필요)
+
+### 결함·회귀 (GREEN)
+
+- [x] BCE 결함(DEF-001~005) 수정 후 `tests/` GREEN
+- [ ] 레거시 CLI 잔여 Open — DEF-002,003,006~008 ([defect_list.md](docs/defect_list.md))
 
 ---
 
@@ -415,7 +460,7 @@ meter,2.5,yard,2.7
 | 마일스톤 | 포함 항목 (PRD) | 목표일 | 상태 | 통과 책임 |
 |----------|-----------------|--------|------|-----------|
 | **M0 — 문서·계약 고정** | PRD, README, RED, Gherkin, .cursorrules | 2026-05-20 | ✅ Done | 문서 담당 |
-| **M1 — v1.0 Core** | F-01~F-04, F-02, F-03; AC-01~03; G-01,G-02,G-05 | T+2일 (실습 2h) | 🔴 진행 전 | 학습자 + CI |
+| **M1 — v1.0 Core** | F-01~F-04, F-02, F-03; AC-01~03; G-01,G-02,G-05 | T+2일 (실습 2h) | 🟡 GREEN 진행 중 (TC-A/B Done, cov·refactor 잔여) | 학습자 + CI |
 | **M2 — v1.0 Quality** | F-05~F-07; F-06; AC-04~06; G-03,G-04; refactor | T+4일 (실습 4h) | ⏳ 대기 | 학습자 + 리뷰어 |
 | **M3 — v1.0 Release** | Must 전부 + 회귀 체크리스트 R-1~R7 | T+5일 | ⏳ 대기 | CI + 릴리스 담당 |
 | **M4 — v2.0 후보** | F-08, Nice-to-Have | 미정 | 📋 백로그 | 팀 합의 |

@@ -6,7 +6,8 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "prompting" / "02_UnitConvertor_06_Red_TDD_Implementation_Progress.md"
+REPORT_NAME = "03_UnitConvertor_06_Green_TDD_Implementation_Progress"
+OUT = ROOT / "prompting" / f"{REPORT_NAME}.md"
 TRANSCRIPT_DIR = Path(
     r"C:\Users\jyk17\.cursor\projects\c-DEV-BR-UnitConvertor-06\agent-transcripts"
 )
@@ -16,16 +17,16 @@ MAX_BODY = 15000
 
 def main() -> None:
     lines = [
-        "# Export Transcript — UnitConvertor_06",
+        f"# Export Transcript — {REPORT_NAME}",
         "",
         f"Exported: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
         "",
         "| 항목 | 값 |",
         "|------|-----|",
-        "| 보고서 | "
-        "[02_UnitConvertor_06_Red_TDD_Implementation_Progress.md]"
-        "(../Report/02_UnitConvertor_06_Red_TDD_Implementation_Progress.md) |",
-        "| 브랜치 | `red` |",
+        f"| 보고서 | [{REPORT_NAME}.md](../Report/{REPORT_NAME}.md) |",
+        "| 브랜치 | `B_06` (GREEN TC별 커밋 + `green` PR 머지) |",
+        "| 선행 | [02_UnitConvertor_06_Red_TDD_Implementation_Progress.md]"
+        "(02_UnitConvertor_06_Red_TDD_Implementation_Progress.md) |",
         "",
         "---",
         "",
@@ -66,19 +67,17 @@ def main() -> None:
 
     lines.extend(
         [
-            "## Session — Workspace summary (report 02 scope)",
+            "## Session — Workspace summary (report 03 scope)",
             "",
-            "### Supplement — Topics covered in red-branch session",
+            "### Topics covered",
             "",
-            "1. Git branch strategy (Dual-Track TDD, RED/GREEN/refactor)",
-            "2. Test plan sample `meter:2.5` → `docs/test_plan.md`",
-            "3. README RED To-Do list",
-            "4. pytest GREEN suite (33) + BCE layers",
-            "5. `docs/defect_list.md` (DEF-001~008)",
-            "6. Defect analysis template (no failure log pasted)",
-            "7. `docs/testing/RED-dual-track-tests.md`",
-            "8. `tests/red/` pytest skeleton (17, `pytest.fail(\"RED\")`)",
-            "9. Report 02 + this transcript + GitHub push",
+            "1. Dual-Track TDD one-commit-per-TC (TC-B-01~09, TC-A-01~07)",
+            "2. `green` branch bulk GREEN + `B_06` incremental commits",
+            "3. PR #1 merge and conflict resolution on `tests/red/`",
+            "4. JSON renderer, UnitConverter → ConverterApp delegation",
+            "5. README RED vs GREEN To-Do checklists",
+            "6. pytest 50 passed, coverage entity/boundary targets",
+            "7. Report 03 + transcript export + GitHub push",
             "",
         ]
     )
