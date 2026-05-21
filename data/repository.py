@@ -5,7 +5,6 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field, ValidationError
 
-from entity.constants import FEET_PER_METER, METERS_PER_FEET, METERS_PER_METER, METERS_PER_YARD, YARD_PER_METER
 from entity.registry import UnitRegistry
 
 try:
@@ -76,11 +75,3 @@ class UnitDefinitionRepository:
         for item in config.units:
             registry.register(item.id, item.meters_per_unit)
         return registry
-
-    @staticmethod
-    def default_feet_per_meter() -> float:
-        return FEET_PER_METER
-
-    @staticmethod
-    def default_yard_per_meter() -> float:
-        return YARD_PER_METER
