@@ -31,6 +31,7 @@ class TestUiRedConvertHappyPath:
         assert len(lines) == 3
         for line in lines:
             assert line.startswith("2.5 meter = ")
+            assert "feet" in line or "yard" in line or "meter" in line
 
 
 class TestUiRedJsonOutput:
