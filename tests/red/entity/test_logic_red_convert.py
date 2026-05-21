@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from entity.constants import FEET_PER_METER
+from entity.constants import FEET_PER_METER, YARD_PER_METER
 from entity.engine import ConversionEngine
 from entity.registry import UnitRegistry
 
@@ -21,8 +21,14 @@ class TestLogicRedConvert:
         assert result == pytest.approx(2.5 * FEET_PER_METER, abs=1e-5)
         assert result == pytest.approx(8.20210, abs=1e-5)
 
-    def test_logic_convert_meter_to_yard_within_1e_5(self) -> None:
-        pytest.fail("RED")
+    def test_logic_convert_meter_to_yard_within_1e_5(
+        self, defaults_registry: UnitRegistry
+    ) -> None:
+        # TC-B-02: convert("meter", 1.0, "yard")
+        engine = ConversionEngine(defaults_registry)
+        result = engine.convert("meter", 1.0, "yard")
+        assert result == pytest.approx(YARD_PER_METER, abs=1e-5)
+        assert result == pytest.approx(1.09361, abs=1e-5)
 
     def test_logic_convert_feet_to_meter_reverse_within_1e_5(self) -> None:
         pytest.fail("RED")
