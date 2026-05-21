@@ -40,5 +40,10 @@ class TestUiRedParseErrors:
             parse_convert_line("parsec:1.0", registry)
         assert "Unknown unit: parsec" in str(exc_info.value)
 
-    def test_ui_parse_invalid_number_abc_raises_value_error(self) -> None:
-        pytest.fail("RED")
+    def test_ui_parse_invalid_number_abc_raises_value_error(
+        self, registry: UnitRegistry
+    ) -> None:
+        # TC-A-07: "meter:abc"
+        with pytest.raises((ValueError, TypeError)) as exc_info:
+            parse_convert_line("meter:abc", registry)
+        assert "Invalid number: abc" in str(exc_info.value)
