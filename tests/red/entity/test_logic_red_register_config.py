@@ -41,8 +41,27 @@ class TestLogicRedLoadConfig:
             FEET_PER_METER, abs=1e-4
         )
 
-    def test_logic_load_config_valid_yaml_applies_ratios(self) -> None:
-        pytest.fail("RED")
+    def test_logic_load_config_valid_yaml_applies_ratios(self, tmp_path: Path) -> None:
+        # TC-B-06: loadConfig(valid yaml)
+        yaml = pytest.importorskip("yaml")
+        path = tmp_path / "units.yaml"
+        path.write_text(
+            yaml.dump(
+                {
+                    "units": [
+                        {"id": "meter", "meters_per_unit": 1.0},
+                        {"id": "feet", "meters_per_unit": 0.3048},
+                        {"id": "yard", "meters_per_unit": 0.9144},
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        registry = UnitDefinitionRepository.load(path)
+        engine = ConversionEngine(registry)
+        assert engine.convert("meter", 1.0, "feet") == pytest.approx(
+            FEET_PER_METER, abs=1e-4
+        )
 
     def test_logic_load_config_missing_path_keeps_default_ratios(self) -> None:
         pytest.fail("RED")
