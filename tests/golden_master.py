@@ -9,6 +9,7 @@ import sys
 from contextlib import redirect_stdout
 from pathlib import Path
 
+from boundary.cli_adapter import CONVERT_PROMPT
 from control.converter_app import ConverterApp
 
 GOLDEN_MASTER_PATH = Path(__file__).resolve().parent / "golden_master_expected.txt"
@@ -32,6 +33,14 @@ def capture_scenario_output(scenario: str, app: ConverterApp | None = None) -> s
     return buffer.getvalue().replace("\r\n", "\n").rstrip("\n")
 
 
+def normalize_cli_stdout(stdout: str) -> str:
+    """Strip interactive prompt; first table row may follow prompt on the same line."""
+    text = stdout.replace("\r\n", "\n")
+    if CONVERT_PROMPT in text:
+        text = text.replace(CONVERT_PROMPT, "", 1)
+    return text.strip("\n")
+
+
 def capture_scenario_output_subprocess(
     scenario: str,
     *,
@@ -47,10 +56,7 @@ def capture_scenario_output_subprocess(
         cwd=root,
         check=True,
     )
-    lines = proc.stdout.replace("\r\n", "\n").splitlines()
-    if lines and "Insert value" in lines[0]:
-        return "\n".join(lines[1:]).rstrip("\n")
-    return proc.stdout.replace("\r\n", "\n").rstrip("\n")
+    return normalize_cli_stdout(proc.stdout)
 
 
 def parse_sections(document: str) -> dict[str, str]:
