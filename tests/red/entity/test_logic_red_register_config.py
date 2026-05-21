@@ -30,8 +30,16 @@ class TestLogicRedRegisterUnit:
 class TestLogicRedLoadConfig:
     """TC-B-06, TC-B-07"""
 
-    def test_logic_load_config_valid_json_applies_ratios(self) -> None:
-        pytest.fail("RED")
+    def test_logic_load_config_valid_json_applies_ratios(
+        self, config_json_path: Path
+    ) -> None:
+        # TC-B-06: loadConfig(valid json)
+        registry = UnitDefinitionRepository.load(config_json_path)
+        engine = ConversionEngine(registry)
+        assert registry.get_meters_per_unit("feet") == pytest.approx(0.3048, abs=1e-6)
+        assert engine.convert("meter", 1.0, "feet") == pytest.approx(
+            FEET_PER_METER, abs=1e-4
+        )
 
     def test_logic_load_config_valid_yaml_applies_ratios(self) -> None:
         pytest.fail("RED")
