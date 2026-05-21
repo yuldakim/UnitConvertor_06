@@ -363,23 +363,23 @@ meter,2.5,yard,2.7
 
 ### Track A — UI / Boundary 테스트
 
-- [ ] TC-A-01: 정상 입력 "meter:2.5" → 변환 결과 반환 (Happy Path)
-- [ ] TC-A-02: ":" 없는 입력 → ValueError / TypeError 발생
-- [ ] TC-A-03: 음수 입력 "meter:-1.0" → ValueError / TypeError 발생
-- [ ] TC-A-04: 없는 단위 "parsec:1.0" → ValueError / TypeError 발생
-- [ ] TC-A-05: 소수점 파싱 실패 "meter:abc" → ValueError / TypeError 발생
-- [ ] TC-A-06: 출력 포맷에 원 입력 단위·값 보존 ("2.5 meter = ...")
-- [ ] TC-A-07: value=0 경계값 처리 확인
+- [x] TC-A-01: 정상 입력 "meter:2.5" → 변환 결과 반환 (Happy Path)
+- [x] TC-A-02: ":" 없는 입력 → ValueError / TypeError 발생
+- [x] TC-A-03: 음수 입력 "meter:-1.0" → ValueError / TypeError 발생
+- [x] TC-A-04: 없는 단위 "parsec:1.0" → ValueError / TypeError 발생
+- [x] TC-A-05: 출력 포맷에 원 입력 단위·값 보존 ("2.5 meter = ...")
+- [x] TC-A-06: JSON 출력 스키마 (`meter:2.5`, feet 표시 `8.2`)
+- [x] TC-A-07: 소수점 파싱 실패 "meter:abc" → ValueError / TypeError 발생
 
 ### Track B — Domain / Logic 테스트
 
-- [ ] TC-B-01: convert("meter", 2.5, "feet") == 8.20210 (오차 1e-5)
-- [ ] TC-B-02: convert("meter", 1.0, "yard") == 1.09361 (오차 1e-5)
-- [ ] TC-B-03: convert("feet", 1.0, "meter") == 0.30480 (역변환)
-- [ ] TC-B-04: convertAll("meter", 1.0) → 모든 등록 단위 변환 반환
-- [ ] TC-B-05: registerUnit("cubit", 0.4572) 후 변환 가능
-- [ ] TC-B-06: loadConfig(유효한 경로) → 비율 정상 로드
-- [ ] TC-B-07: loadConfig(없는 경로) → 기본값(3.28084/1.09361) 유지
+- [x] TC-B-01: convert("meter", 2.5, "feet") == 8.20210 (오차 1e-5)
+- [x] TC-B-02: convert("meter", 1.0, "yard") == 1.09361 (오차 1e-5)
+- [x] TC-B-03: convert("feet", 1.0, "meter") == 0.30480 (역변환)
+- [x] TC-B-04: convertAll("meter", 1.0) → 모든 등록 단위 변환 반환
+- [x] TC-B-05: registerUnit("cubit", 0.4572) 후 변환 가능
+- [x] TC-B-06: loadConfig(유효한 경로) → 비율 정상 로드
+- [x] TC-B-07: loadConfig(없는 경로) → 기본값(3.28084/1.09361) 유지
 
 ### 커버리지 목표
 
