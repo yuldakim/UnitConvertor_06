@@ -25,3 +25,16 @@ class TestLogicRedRegisterUnit:
         assert result == pytest.approx(0.4572 / 0.3048, abs=1e-4)
         lines = engine.convert_all("meter", 1.0)
         assert len(lines) == 4
+
+
+class TestLogicRedLoadConfig:
+    """TC-B-06, TC-B-07"""
+
+    def test_logic_load_config_valid_json_applies_ratios(self) -> None:
+        pytest.fail("RED")
+
+    def test_logic_load_config_valid_yaml_applies_ratios(self) -> None:
+        pytest.fail("RED")
+
+    def test_logic_load_config_missing_path_keeps_default_ratios(self) -> None:
+        pytest.fail("RED")
