@@ -1,0 +1,7 @@
+{
+  "units": [
+    { "id": "meter", "meters_per_unit": 1.0 },
+    { "id": "feet", "meters_per_unit": 0.3048 },
+    { "id": "yard", "meters_per_unit": 0.9144 }
+  ]
+}

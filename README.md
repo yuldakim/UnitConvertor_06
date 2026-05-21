@@ -14,7 +14,7 @@
 - [출력 포맷](#출력-포맷)
 - [기여 가이드 (Contributing)](#기여-가이드-contributing)
 - [라이선스](#라이선스)
-- [To-Do 리스트 — UnitConverter (Python)](#to-do-리스트--unitconverter-python)
+- [RED 단계 To-Do 리스트](#red-단계-to-do-리스트)
 
 ---
 
@@ -351,74 +351,46 @@ meter,2.5,yard,2.7
 | [docs/requirements-package.md](docs/requirements-package.md) | Epic / Journey / Gherkin |
 | [docs/bce/BCE-design.md](docs/bce/BCE-design.md) | BCE 설계 |
 | [docs/testing/RED-test-list.md](docs/testing/RED-test-list.md) | RED 테스트 목록 |
+| [docs/test_plan.md](docs/test_plan.md) | 테스트 계획서 (meter→feet 샘플) |
+| [docs/defect_list.md](docs/defect_list.md) | 결함 목록 (DEF-001~) |
 
 ---
 
-# To-Do 리스트 — UnitConverter (Python)
+## RED 단계 To-Do 리스트
 
-> 기준: [docs/PRD.md](docs/PRD.md) §3 기능 요구사항 · §7.1 인수 기준 · §7.2 회귀 보호  
-> **통과 정의:** 아래 “완료 기준”을 담당 역할이 검증하고, pytest·리뷰 로그로 확인할 때 Done.
+> 이 체크리스트는 [test_plan.md](docs/test_plan.md) 기반으로 생성되었습니다.
+> 각 항목은 RED(실패 테스트 작성) 완료 시 체크합니다.
 
-| 역할 | 책임 |
-|------|------|
-| **학습자(구현)** | RED/GREEN/refactor, 레이어 코드·테스트 작성 |
-| **리뷰어** | PRD 계약·forbidden·의존성 방향 준수 확인 |
-| **CI** | `pytest`·`pytest-cov` 자동 실행, 임계값 게이트 |
+### Track A — UI / Boundary 테스트
 
----
+- [ ] TC-A-01: 정상 입력 "meter:2.5" → 변환 결과 반환 (Happy Path)
+- [ ] TC-A-02: ":" 없는 입력 → ValueError / TypeError 발생
+- [ ] TC-A-03: 음수 입력 "meter:-1.0" → ValueError / TypeError 발생
+- [ ] TC-A-04: 없는 단위 "parsec:1.0" → ValueError / TypeError 발생
+- [ ] TC-A-05: 소수점 파싱 실패 "meter:abc" → ValueError / TypeError 발생
+- [ ] TC-A-06: 출력 포맷에 원 입력 단위·값 보존 ("2.5 meter = ...")
+- [ ] TC-A-07: value=0 경계값 처리 확인
 
-## 🔴 필수 (Must-Have) — v1.0 릴리스 차단 항목
+### Track B — Domain / Logic 테스트
 
-- [ ] **entity: UnitRegistry 기본 3단위 + meter 앵커 환산** | PRD F-03, §5.1, G-02 | **학습자:** `with_defaults()` 및 `convert` 구현 후 **CI:** A-01,A-03,A-04 pytest GREEN; ε≤1e-4
-- [ ] **entity: 음수·0·미등록 단위 거부** | PRD F-02, §3.3, US-01 | **학습자:** Domain 예외 발생 **리뷰어:** boundary 매핑 전 entity 단독 TC(N-01,U-01) GREEN
-- [ ] **boundary: `unit:value` 파싱·table 렌더** | PRD F-01, F-04, AC-01 | **학습자:** `meter:2.5` → stdout 3줄 exact **CI:** T-01, A-06 앵커 GREEN; exit 0
-- [ ] **boundary: 고정 오류 문구 5종 exact** | PRD F-02, §3.2, AC-02, AC-03 | **학습자:** `meter 2.5`/`mile:1` 메시지 일치 **리뷰어:** 문자열 diff 0; exit ≠0
-- [ ] **표시 반올림 1자리 ROUND_HALF_UP** | PRD §3.3, §6.1, G-02 | **학습자:** `2.5 meter = 8.2 feet`, `2.7 yard` **CI:** A-06,T-04 통과
-- [ ] **control: 변환 유스케이스 오케스트레이션** | PRD §4.2, F-01 | **학습자:** boundary→control→entity 연결 **리뷰어:** entity→boundary import 0건
-- [ ] **통합: Happy path + 형식/unknown unit** | PRD AC-01~03, S-01,S-02 | **CI:** T-I-01~05(또는 동등 시나리오) GREEN **학습자:** 수동 `python` 1회는 보조만
-- [ ] **RED P0 전부 GREEN (필수 분류)** | PRD G-01, SC-01 | **CI:** 파싱·정확도·table·음수·unknown RED ID P*,N*,U*,A-01~03,T-01 0 failed
-- [ ] **pyproject·tests/ 레이아웃·pytest 실행 가능** | PRD §4.1, README Quick Start | **학습자:** `pytest` 로컬 exit 0 **CI:** 워크플로 또는 문서화된 명령 동일
+- [ ] TC-B-01: convert("meter", 2.5, "feet") == 8.20210 (오차 1e-5)
+- [ ] TC-B-02: convert("meter", 1.0, "yard") == 1.09361 (오차 1e-5)
+- [ ] TC-B-03: convert("feet", 1.0, "meter") == 0.30480 (역변환)
+- [ ] TC-B-04: convertAll("meter", 1.0) → 모든 등록 단위 변환 반환
+- [ ] TC-B-05: registerUnit("cubit", 0.4572) 후 변환 가능
+- [ ] TC-B-06: loadConfig(유효한 경로) → 비율 정상 로드
+- [ ] TC-B-07: loadConfig(없는 경로) → 기본값(3.28084/1.09361) 유지
 
----
+### 커버리지 목표
 
-## 🟡 권장 (Should-Have) — 품질 향상 항목
+- [ ] Domain Logic: 95%+ (pip install pytest-cov)
+- [ ] Boundary Layer: 85%+
+- [ ] 전체 TOTAL: 90%+
 
-- [ ] **data: config/units.json 로드 → Registry** | PRD F-06, §5.2, US-05 | **학습자:** 유효 JSON 3단위 **CI:** T-DA-01, A-07 GREEN; entity/boundary에 `open` 없음
-- [ ] **data: CFG_FILE_NOT_FOUND / CFG_PARSE_ERROR** | PRD F-06, AC-04 | **학습자:** malformed·누락 시 환산 stdout 0줄 **CI:** 통합 TC exit ≠0, code assert
-- [ ] **boundary: JSON 출력 스키마** | PRD F-05, §6.2, US-04 | **학습자:** `source`+`conversions[]` 1자리 **CI:** J-01~J-04 GREEN
-- [ ] **boundary: CSV 출력 스키마** | PRD F-05, §6.3 | **학습자:** 헤더 4열·N행 **CI:** C-01~C-04 GREEN
-- [ ] **동적 단위 등록 CLI** | PRD F-07, §5.3, AC-05, G-04 | **학습자:** `1 cubit = 0.4572 meter` 후 4줄 **CI:** R-01,T-I-03 GREEN; MSG_REGISTER_OK exact
-- [ ] **레이어 커버리지 목표 달성** | PRD §4.3, AC-06, G-03 | **CI:** entity line≥95%, boundary≥90%, data≥85% 리포트 첨부 **리뷰어:** 미달 시 PR reject
-- [ ] **BCE refactor (GREEN 이후)** | PRD RR-04, §4.2 | **학습자:** `UnitConverter.py` → boundary/control/entity/data 분리 **CI:** refactor 전후 pytest diff 0 failed
-- [ ] **pydantic DTO (Command·ErrorEnvelope·units)** | PRD §4.1 | **학습자:** 설정·명령 검증 **리뷰어:** 공개 API 타입 힌트 100%
+### 결함 목록 연결
 
----
-
-## 🟢 선택 (Nice-to-Have) — v2.0 후보
-
-- [ ] **units.yaml 로드 (JSON 동형)** | PRD F-08 | **기대 가치:** 설정 형식 선택지 확대, Data 소스 OCP 검증
-- [ ] **format CLI 플래그 (`--format=json|csv|table`)** | PRD F-05 | **기대 가치:** 스크립트·CI 파이프 연동 편의
-- [ ] **import-linter / 의존성 자동 검사** | PRD G-05, SC-05 | **기대 가치:** entity 역참조 PR 단계 차단
-- [ ] **Gherkin pytest-bdd 실행** | Phase 4 Gherkin | **기대 가치:** AC-01~04를 비개발자 readable 시나리오로 재실행
-- [ ] **등록 단위 영속 save (재시작 후 유지)** | PRD §5.2 확장 | **기대 가치:** 실습 외 로컬 운영 시나리오
-
----
-
-## 🔵 기술 부채 (Tech Debt)
-
-- [ ] **단일 파일 `UnitConverter.py`에 I/O·환산·비율 혼재** | 원인: 레거시 실습 시작 코드 | **해결:** M2 refactor로 entity/boundary 분리; RR-04 준수
-- [ ] **비율이 README·PRD·코드 3곳에 분산 위험** | 원인: 초기 하드코딩 | **해결:** `config/units.json` 단일 출처 + entity만 참조
-- [ ] **문서(PRD) vs 구현 계약 드리프트** | 원인: AI 생성 코드 병합 | **해결:** 계약 변경 시 RED→PRD→README 동시 PR (RR-02, RR-03)
-- [ ] **앵커 TC 미구현 상태 가능** | 원인: RED 지연 | **해결:** v1.0 전 A-01,A-03,A-06,T-01,J-01,C-01 최우선 GREEN (RR-01)
-
----
-
-## ✅ 완료 항목 (Done)
-
-- [x] **Phase 5 PRD 작성** (`docs/PRD.md`) | 2026-05-20 | `docs: add PRD UC-06-001`
-- [x] **README 오픈소스 문서화 (계약·아키텍처·기여)** | 2026-05-20 | `docs: README from PRD`
-- [x] **Phase 4 요구사항 패키지·RED 목록·BCE 설계 문서** | 2026-05-20 | `docs: requirements, RED, BCE`
-- [x] **`.cursorrules` (tdd·architecture·forbidden)`** | 2026-05-20 | `chore: cursorrules BCE TDD`
+- [x] defect_list.md 생성 및 발견 결함 기록 — [docs/defect_list.md](docs/defect_list.md) (DEF-001~008)
+- [x] 모든 결함 수정 후 회귀 테스트 통과 확인 — BCE 스택 `pytest` 33 passed (2026-05-21); 레거시 CLI 잔여 Open → DEF-002,003,006~008
 
 ---
 
