@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unit-converter"
+version = "0.1.0"
+description = "Meter-hub length unit conversion CLI (BCE learning project)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pyyaml>=6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["entity*", "boundary*", "control*", "data*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "golden_master: regression approval tests against golden_master_expected.txt",
+    "bonus: optional bonus feature tests (decaying unit / cubit registration)",
+]
+
+# Project packages (use: pytest --cov=entity --cov=boundary --cov=control --cov=data -m golden_master)
+[tool.coverage.run]
+source = ["entity", "boundary", "control", "data"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
