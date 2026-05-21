@@ -28,6 +28,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 markers = [
     "golden_master: regression approval tests against golden_master_expected.txt",
+    "bonus: optional bonus feature tests (decaying unit / cubit registration)",
 ]
 
 # Project packages (use: pytest --cov=entity --cov=boundary --cov=control --cov=data -m golden_master)
