@@ -1,18 +1,12 @@
-"""Legacy CLI entry — delegates to BCE ConverterApp (no conversion logic here)."""
+"""Legacy CLI entry — delegates to boundary.cli_adapter (no conversion logic here)."""
 
 from __future__ import annotations
 
-from boundary.parser import ParseError
-from control.converter_app import ConverterApp
+from boundary.cli_adapter import run_convert_cli
 
 
 def main() -> None:
-    input_str = input("Insert value for converting (ex: meter:2.5): ")
-    app = ConverterApp()
-    try:
-        print(app.handle_convert_line(input_str))
-    except ParseError as exc:
-        print(exc.message)
+    run_convert_cli()
 
 
 if __name__ == "__main__":
