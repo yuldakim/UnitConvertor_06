@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 from boundary.parser import ParseError
 from control.converter_app import ConverterApp
 
@@ -15,3 +17,4 @@ def run_convert_cli(app: ConverterApp | None = None) -> None:
         print(converter.handle_convert_line(input_str))
     except ParseError as exc:
         print(exc.message)
+        raise SystemExit(1) from exc
