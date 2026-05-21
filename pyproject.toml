@@ -26,3 +26,14 @@ include = ["entity*", "boundary*", "control*", "data*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "golden_master: regression approval tests against golden_master_expected.txt",
+]
+
+# Project packages (use: pytest --cov=entity --cov=boundary --cov=control --cov=data -m golden_master)
+[tool.coverage.run]
+source = ["entity", "boundary", "control", "data"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true

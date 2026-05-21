@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REPORT_NAME = "03_UnitConvertor_06_Green_TDD_Implementation_Progress"
+REPORT_NAME = "04_UnitConvertor_06_Golden_Master_Refactoring_Progress"
 OUT = ROOT / "prompting" / f"{REPORT_NAME}.md"
 TRANSCRIPT_DIR = Path(
     r"C:\Users\jyk17\.cursor\projects\c-DEV-BR-UnitConvertor-06\agent-transcripts"
@@ -24,9 +24,9 @@ def main() -> None:
         "| 항목 | 값 |",
         "|------|-----|",
         f"| 보고서 | [{REPORT_NAME}.md](../Report/{REPORT_NAME}.md) |",
-        "| 브랜치 | `B_06` (GREEN TC별 커밋 + `green` PR 머지) |",
-        "| 선행 | [02_UnitConvertor_06_Red_TDD_Implementation_Progress.md]"
-        "(02_UnitConvertor_06_Red_TDD_Implementation_Progress.md) |",
+        "| 브랜치 | `refactoring` → PR 머지 → `B_06` → `refactoring` 재생성 |",
+        "| 선행 | [03_UnitConvertor_06_Green_TDD_Implementation_Progress.md]"
+        "(03_UnitConvertor_06_Green_TDD_Implementation_Progress.md) |",
         "",
         "---",
         "",
@@ -67,17 +67,17 @@ def main() -> None:
 
     lines.extend(
         [
-            "## Session — Workspace summary (report 03 scope)",
+            "## Session — Workspace summary (report 04 scope)",
             "",
             "### Topics covered",
             "",
-            "1. Dual-Track TDD one-commit-per-TC (TC-B-01~09, TC-A-01~07)",
-            "2. `green` branch bulk GREEN + `B_06` incremental commits",
-            "3. PR #1 merge and conflict resolution on `tests/red/`",
-            "4. JSON renderer, UnitConverter → ConverterApp delegation",
-            "5. README RED vs GREEN To-Do checklists",
-            "6. pytest 50 passed, coverage entity/boundary targets",
-            "7. Report 03 + transcript export + GitHub push",
+            "1. Git: delete `green` branch; create/push `refactoring` from `B_06`",
+            "2. Golden Master: `golden_master_expected.txt`, approve pattern, GM-TC-01~04",
+            "3. `tests/test_golden_master.py`, `pytest -m golden_master` (4 passed)",
+            "4. README Golden Master To-Do (GM-01~GM-09); GM-08 manual branch protection",
+            "5. CI: `.github/workflows/golden_master.yml` (`Golden Master Regression`)",
+            "6. approvaltests vs 자체 Golden Master — 자체 방식 유지",
+            "7. Report 04 + transcript export + push/PR/merge B_06 + refactoring 재분기",
             "",
         ]
     )
