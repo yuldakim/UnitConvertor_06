@@ -63,5 +63,18 @@ class TestLogicRedLoadConfig:
             FEET_PER_METER, abs=1e-4
         )
 
-    def test_logic_load_config_missing_path_keeps_default_ratios(self) -> None:
-        pytest.fail("RED")
+    def test_logic_load_config_missing_path_keeps_default_ratios(
+        self, tmp_path: Path
+    ) -> None:
+        # TC-B-07: loadConfig(missing) → defaults
+        missing = tmp_path / "nonexistent.json"
+        registry = UnitDefinitionRepository.load(missing)
+        engine = ConversionEngine(registry)
+        assert engine.convert("meter", 1.0, "feet") == pytest.approx(
+            FEET_PER_METER, abs=1e-4
+        )
+        app = ConverterApp()
+        app.load_config(str(missing))
+        assert app.convert("meter", 1.0, "feet") == pytest.approx(
+            FEET_PER_METER, abs=1e-4
+        )
