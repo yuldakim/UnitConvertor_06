@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from control.converter_app import ConverterApp
@@ -34,5 +36,14 @@ class TestUiRedConvertHappyPath:
 class TestUiRedJsonOutput:
     """TC-A-06"""
 
-    def test_ui_json_format_meter_2_5_matches_schema(self) -> None:
-        pytest.fail("RED")
+    def test_ui_json_format_meter_2_5_matches_schema(
+        self, converter_app: ConverterApp
+    ) -> None:
+        # TC-A-06: JSON schema for meter:2.5
+        raw = converter_app.handle_convert_line_json("meter:2.5")
+        data = json.loads(raw)
+        assert data["source"]["unit"] == "meter"
+        assert data["source"]["value"] == 2.5
+        assert len(data["conversions"]) == 3
+        feet = next(c for c in data["conversions"] if c["unit"] == "feet")
+        assert feet["value"] == 8.2

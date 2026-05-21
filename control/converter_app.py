@@ -4,6 +4,7 @@ from entity.engine import ConversionEngine
 from entity.registry import UnitRegistry
 
 from boundary.parser import ConvertCommand, RegisterCommand, parse_convert_line, parse_register_line
+from boundary.renderers.json_renderer import render_json
 from boundary.renderers.table import render_table
 from data.repository import UnitDefinitionRepository
 
@@ -38,6 +39,11 @@ class ConverterApp:
         command = parse_convert_line(line, self._registry)
         lines = self._engine.convert_all(command.unit_id, command.magnitude)
         return render_table(command.unit_id, command.magnitude, lines)
+
+    def handle_convert_line_json(self, line: str) -> str:
+        command = parse_convert_line(line, self._registry)
+        lines = self._engine.convert_all(command.unit_id, command.magnitude)
+        return render_json(command.unit_id, command.magnitude, lines)
 
     def handle_register_line(self, line: str) -> str:
         command = parse_register_line(line)
