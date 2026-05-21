@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REPORT_NAME = "05_UnitConvertor_06_Dual_Track_Refactoring_Progress"
+REPORT_NAME = "06_UnitConvertor_06_Bonus_RegisterUnit_Progress"
 OUT = ROOT / "prompting" / f"{REPORT_NAME}.md"
 TRANSCRIPT_DIR = Path(
     r"C:\Users\jyk17\.cursor\projects\c-DEV-BR-UnitConvertor-06\agent-transcripts"
@@ -24,9 +24,9 @@ def main() -> None:
         "| 항목 | 값 |",
         "|------|-----|",
         f"| 보고서 | [{REPORT_NAME}.md](../Report/{REPORT_NAME}.md) |",
-        "| 브랜치 | `refactoring` → PR 머지 → `B_06` → `refactoring` 재생성 |",
-        "| 선행 | [04_UnitConvertor_06_Golden_Master_Refactoring_Progress.md]"
-        "(04_UnitConvertor_06_Golden_Master_Refactoring_Progress.md) |",
+        "| 브랜치 | `feature` → PR 머지 → `B_06` |",
+        "| 선행 | [05_UnitConvertor_06_Dual_Track_Refactoring_Progress.md]"
+        "(05_UnitConvertor_06_Dual_Track_Refactoring_Progress.md) |",
         "",
         "---",
         "",
@@ -67,15 +67,15 @@ def main() -> None:
 
     lines.extend(
         [
-            "## Session — Workspace summary (report 05 scope)",
+            "## Session — Workspace summary (report 06 scope)",
             "",
             "### Topics covered",
             "",
-            "1. Dual-Track REFACTOR: control dedupe, data load extract, CLI adapter, GM subprocess",
-            "2. DEF-006: CLI parse error exit code 1 + boundary tests",
-            "3. ECB/BCE separation verification; 60 pytest PASS",
-            "4. Coverage entity/boundary; Report 05 + transcript export",
-            "5. Push refactoring; PR → B_06; merge (pending gh CLI)",
+            "1. Bonus RED: decaying_unit.py stub + tests/test_decaying_unit.py (BT-01~06, @pytest.mark.bonus)",
+            "2. Bonus GREEN: UnitRegistry + ConversionEngine facade in decaying_unit.py",
+            "3. Verification: pytest 69 passed, GM 8 passed, entity 95% / boundary 100% cov",
+            "4. registerUnit negative ratio → InvalidRatioError (ValueError subclass)",
+            "5. Report 06 + transcript export; commit/push feature → PR to B_06",
             "",
         ]
     )
