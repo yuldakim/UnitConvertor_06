@@ -17,11 +17,11 @@
 Report 04(Golden Master 4건 + CI) 이후 **Dual-Track REFACTOR** 5커밋을 `refactoring` 브랜치에 적용했다.  
 외부 계약(입력 `단위:값`, 출력 `값 단위 = 변환값 단위`, `ParseError`/`ValueError` 거부)은 유지한 채 **Control·Data·Boundary·CLI** 구조만 정리했다.
 
-- **pytest:** 60 passed (0 failed)
+- **pytest:** 68 passed (0 failed)
 - **Golden Master:** 8 passed (승인 4 + CLI subprocess 동치 4)
 - **RED Dual-Track:** 17 passed (TC-A/B 스위트)
 - **Domain·Boundary 분리:** 완료 (레거시 `UnitConverter.py` 단일 if-else 제거 상태 유지)
-- **커버리지:** Domain(`entity`) **≥ 95%** · Boundary 패키지 합산 **82%** (목표 85% **미달** — §6 참고)
+- **커버리지:** Domain(`entity`) **≥ 95%** · Boundary **100%** (목표 85% **달성** — §5·§6)
 
 ---
 
@@ -43,7 +43,7 @@ Report 04(Golden Master 4건 + CI) 이후 **Dual-Track REFACTOR** 5커밋을 `re
 
 ```bash
 pytest tests/ -v
-# 60 passed in ~7.7s
+# 68 passed
 
 pytest -m golden_master -v
 # 8 passed
@@ -121,14 +121,19 @@ pytest tests/ --cov=entity --cov=boundary --cov-report=term-missing --cov-report
 
 | 레이어 | 패키지 | Stmts | Cover | 목표 | 판정 |
 |--------|--------|-------|-------|------|------|
-| **Domain** | `entity` (핵심 모듈) | 85 | **~95%** | ≥ 95% | **PASS** |
-| **Boundary** | `boundary` (전체) | 112 | **~82%** | ≥ 85% | **미달** |
+| **Domain** | `entity` | 88 | **~95%** | ≥ 95% | **PASS** |
+| **Boundary** | `boundary` | 112 | **100%** | ≥ 85% | **PASS** |
+| **합산** | `entity` + `boundary` | 200 | **98%** | — | — |
 
-미커버 주요 구간:
+### 5.1 커버리지 보강 커밋 (후속)
 
-- `boundary/cli_adapter.py` — `run_convert_cli` 일부 (subprocess 테스트는 통과하나 라인 커버 미완)
-- `boundary/parser.py` — `parse_register_line` (83–96, CLI 미연결)
-- `boundary/__init__.py`, `entity/__init__.py` — 패키지 export만
+| 테스트 파일 | 대상 | 효과 |
+|-------------|------|------|
+| `tests/boundary/test_parser_register.py` | `parse_register_line`, `:2.5` 빈 unit_id | `parser.py` **100%** |
+| `tests/boundary/test_cli_adapter.py` | `run_convert_cli` mock input/print | `cli_adapter.py` **100%** |
+| `tests/boundary/test_boundary_package.py` | `from boundary import …` | `boundary/__init__.py` **100%** |
+
+> `tests/boundary/__init__.py` 제거 — 테스트 디렉터리가 최상위 `boundary` 패키지를 가리지 않도록 함.
 
 HTML 리포트: `htmlcov/index.html`
 
@@ -140,9 +145,9 @@ HTML 리포트: `htmlcov/index.html`
 
 | ID | 상태 | 비고 |
 |----|------|------|
-| DEF-006 | **Close (CLI)** | `cli_adapter` + `test_cli_adapter.py` |
+| DEF-006 | **Close (CLI)** | `cli_adapter` + `test_cli_adapter.py` (unit + subprocess) |
 | DEF-008 | **Close (동치)** | GM subprocess 4건 |
-| Boundary cov 85% | Open | `parse_register_line` 또는 CLI 등록 경로 테스트 추가 시 해소 가능 |
+| Boundary cov 85% | **Close** | `test_parser_register` · `test_cli_adapter` · `test_boundary_package` |
 | `handle_register_line` | Open | Control API 존재, CLI 미노출 (기능 추가 아님 연결만 해당) |
 
 ---
@@ -170,6 +175,5 @@ HTML 리포트: `htmlcov/index.html`
 
 ## 9. 결론
 
-Dual-Track REFACTOR 목표(계약 유지·레이어 분리·회귀 GREEN)는 **달성**했다.  
-Boundary 커버리지 85%는 후속 1커밋(테스트 보강만)으로 올릴 수 있다.  
-**push → PR → 머지**는 §7·§8 순서로 진행한다.
+Dual-Track REFACTOR 목표(계약 유지·레이어 분리·회귀 GREEN·Boundary ≥85%)는 **달성**했다.  
+**push → PR → 머지**는 §7·§8 순서로 진행한다 (`gh` 설치 후 PR·리뷰 자동화).
