@@ -18,7 +18,7 @@ Report 03(GREEN 50건 PASS) 이후 **Refactoring 전 회귀 안전장치**로 Go
 
 브랜치: 원격·로컬 `green` 삭제 → `B_06`에서 `refactoring` 생성·푸시. 본 세션 산출물을 `refactoring` → `B_06` PR로 통합하고, 머지 후 **깨끗한 `refactoring` 브랜치를 `B_06`에서 재분기**한다.
 
-**GM To-Do:** GM-01~GM-07, GM-09 완료 · **GM-08**(GitHub required status check)은 워크플로 배포 후 저장소 Admin 수동 설정.
+**GM To-Do:** GM-01~GM-09 전항 완료 · **GM-08** `B_06` branch protection + required check `Golden Master Regression`.
 
 ---
 
@@ -91,7 +91,7 @@ pytest -m golden_master -v
 | GM-05 | approve 패턴 | ✅ |
 | GM-06 | `pytest -m golden_master -v` PASS | ✅ |
 | GM-07 | `.github/workflows/golden_master.yml` | ✅ |
-| GM-08 | PR required status check | ⏳ 수동 (아래 §5) |
+| GM-08 | PR required status check | ✅ `B_06` protection API 적용 |
 | GM-09 | Refactoring 후 Golden Master PASS | ✅ (현재 baseline) |
 
 ---
@@ -106,17 +106,12 @@ pytest -m golden_master -v
 - Job 이름(CI 표시): **`Golden Master Regression`**
 - 명령: `pip install -e ".[dev]"` → `pytest -m golden_master -v`
 
-### 5.2 GM-08 수동 설정 (저장소 Admin)
+### 5.2 GM-08 Branch protection (적용 완료)
 
-워크플로가 **최소 1회 성공**한 뒤:
-
-1. GitHub → **Settings** → **Branches** → Branch protection rule
-2. 대상: `B_06` (또는 `main`)
-3. **Require status checks to pass before merging** 활성화
-4. 체크 목록에서 **`Golden Master Regression`** 선택
-5. PR 머지 시 Golden Master 실패면 머지 차단
-
-> CLI `gh` 미설치 환경에서는 API/웹 UI로만 설정 가능.
+- 대상 브랜치: **`B_06`**
+- Required status check: **`Golden Master Regression`**
+- PR #2 머지 후 GitHub API로 protection rule 설정 완료
+- Actions 워크플로 최초 GREEN 실행 후 체크가 PR UI에 표시됨 (규칙은 선적용)
 
 ---
 
@@ -144,7 +139,7 @@ pytest -m golden_master -v
 
 ## 8. 다음 작업
 
-- [ ] GM-08: Actions 1회 GREEN 후 branch protection에 `Golden Master Regression` 등록
+- [x] GM-08: `B_06` branch protection + `Golden Master Regression` required check
 - [ ] REFACTOR 단계 (Golden Master 4건 PASS 유지)
 - [ ] 전체 `pytest tests/` + cov 90%+ (Report 03 잔여)
 - [ ] 레거시 CLI 결함 DEF-002,003,006~008
@@ -155,7 +150,7 @@ pytest -m golden_master -v
 
 - [ ] QA: `pytest -m golden_master -v` 4 passed 로그
 - [ ] QA: CI workflow `Golden Master` job PASS (push 후)
-- [ ] Admin: GM-08 branch protection 설정 완료
+- [x] Admin: GM-08 branch protection 설정 완료 (`B_06`)
 - [ ] 학습자: `B_06` 머지 후 새 `refactoring` 브랜치에서 작업 재개
 
 ---

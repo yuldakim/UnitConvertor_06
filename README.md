@@ -412,10 +412,10 @@ meter,2.5,yard,2.7
 ### CI 연동
 
 - [x] GM-07: .github/workflows/golden_master.yml 작성
-- [ ] GM-08: PR 머지 차단 (required status check) 설정 — **GitHub 저장소 설정에서 수동** (아래 참고)
+- [x] GM-08: PR 머지 차단 (required status check) 설정 — `B_06`에 `Golden Master Regression` required check 적용
 - [x] GM-09: Refactoring 후 Golden Master 재실행 → PASS 확인
 
-**GM-08 수동 설정 (저장소 Admin):** Settings → Branches → Branch protection → `main` / `refactoring` 등 → **Require status checks** → `Golden Master Regression` 선택.
+**GM-08:** `B_06` branch protection — required status check `Golden Master Regression` (CI workflow job name). 추가 브랜치는 Settings → Branches에서 동일 규칙 복제.
 
 ---
 

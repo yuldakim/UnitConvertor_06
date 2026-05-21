@@ -5,7 +5,6 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field, ValidationError
 
-from entity.constants import FEET_PER_METER, METERS_PER_FEET, METERS_PER_METER, METERS_PER_YARD, YARD_PER_METER
 from entity.registry import UnitRegistry
 
 try:
@@ -36,19 +35,17 @@ class UnitDefinitionRepository:
         return UnitRegistry.with_defaults()
 
     @staticmethod
-    def load(path: str | Path) -> UnitRegistry:
-        file_path = Path(path)
-        if not file_path.is_file():
-            return UnitDefinitionRepository.with_defaults()
-
+    def _read_config_text(file_path: Path) -> str:
         try:
-            raw_text = file_path.read_text(encoding="utf-8")
+            return file_path.read_text(encoding="utf-8")
         except OSError as exc:
             raise ConfigLoadError(
                 "CFG_FILE_NOT_FOUND",
                 "Config file not found.",
             ) from exc
 
+    @staticmethod
+    def _parse_config_payload(file_path: Path, raw_text: str) -> UnitsConfigDTO:
         try:
             if file_path.suffix.lower() in {".yaml", ".yml"}:
                 if yaml is None:
@@ -71,16 +68,21 @@ class UnitDefinitionRepository:
                 "CFG_PARSE_ERROR",
                 "Failed to parse config file.",
             )
+        return config
 
+    @staticmethod
+    def _registry_from_config(config: UnitsConfigDTO) -> UnitRegistry:
         registry = UnitRegistry()
         for item in config.units:
             registry.register(item.id, item.meters_per_unit)
         return registry
 
     @staticmethod
-    def default_feet_per_meter() -> float:
-        return FEET_PER_METER
+    def load(path: str | Path) -> UnitRegistry:
+        file_path = Path(path)
+        if not file_path.is_file():
+            return UnitDefinitionRepository.with_defaults()
 
-    @staticmethod
-    def default_yard_per_meter() -> float:
-        return YARD_PER_METER
+        raw_text = UnitDefinitionRepository._read_config_text(file_path)
+        config = UnitDefinitionRepository._parse_config_payload(file_path, raw_text)
+        return UnitDefinitionRepository._registry_from_config(config)

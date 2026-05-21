@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import subprocess
 import sys
 from pathlib import Path
 
@@ -15,27 +14,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from tests.golden_master import (  # noqa: E402
     SCENARIOS,
     build_golden_master_document,
+    capture_scenario_output_subprocess,
     write_expected_file,
 )
 
 DEFAULT_OUTPUT = PROJECT_ROOT / "tests" / "golden_master_expected.txt"
-
-
-def capture_via_subprocess(scenario: str) -> str:
-    """Optional: full UnitConverter.py CLI via stdin (prompt + table output)."""
-    proc = subprocess.run(
-        [sys.executable, str(PROJECT_ROOT / "UnitConverter.py")],
-        input=f"{scenario}\n",
-        capture_output=True,
-        text=True,
-        cwd=PROJECT_ROOT,
-        check=True,
-    )
-    lines = proc.stdout.splitlines()
-    # Skip interactive prompt line; remainder is conversion table.
-    if lines and "Insert value" in lines[0]:
-        return "\n".join(lines[1:]).rstrip("\n")
-    return proc.stdout.rstrip("\n")
 
 
 def main() -> int:
@@ -62,7 +45,7 @@ def main() -> int:
     if args.subprocess:
         blocks = []
         for scenario in SCENARIOS:
-            body = capture_via_subprocess(scenario)
+            body = capture_scenario_output_subprocess(scenario, project_root=PROJECT_ROOT)
             blocks.append(f"[{scenario}]\n{body}")
         from tests.golden_master import SECTION_SEPARATOR
 

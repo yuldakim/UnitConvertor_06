@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from entity.engine import ConversionEngine
+from collections.abc import Callable
+
+from entity.engine import ConversionEngine, ConversionLine
 from entity.registry import UnitRegistry
 
-from boundary.parser import ConvertCommand, RegisterCommand, parse_convert_line, parse_register_line
+from boundary.parser import parse_convert_line, parse_register_line
 from boundary.renderers.json_renderer import render_json
 from boundary.renderers.table import render_table
 from data.repository import UnitDefinitionRepository
@@ -35,15 +37,20 @@ class ConverterApp:
     def convert_all(self, source_unit: str, magnitude: float):
         return self._engine.convert_all(source_unit, magnitude)
 
-    def handle_convert_line(self, line: str) -> str:
+    def _run_convert_line(
+        self,
+        line: str,
+        render: Callable[[str, float, list[ConversionLine]], str],
+    ) -> str:
         command = parse_convert_line(line, self._registry)
         lines = self._engine.convert_all(command.unit_id, command.magnitude)
-        return render_table(command.unit_id, command.magnitude, lines)
+        return render(command.unit_id, command.magnitude, lines)
+
+    def handle_convert_line(self, line: str) -> str:
+        return self._run_convert_line(line, render_table)
 
     def handle_convert_line_json(self, line: str) -> str:
-        command = parse_convert_line(line, self._registry)
-        lines = self._engine.convert_all(command.unit_id, command.magnitude)
-        return render_json(command.unit_id, command.magnitude, lines)
+        return self._run_convert_line(line, render_json)
 
     def handle_register_line(self, line: str) -> str:
         command = parse_register_line(line)
