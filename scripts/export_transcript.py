@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REPORT_NAME = "04_UnitConvertor_06_Golden_Master_Refactoring_Progress"
+REPORT_NAME = "05_UnitConvertor_06_Dual_Track_Refactoring_Progress"
 OUT = ROOT / "prompting" / f"{REPORT_NAME}.md"
 TRANSCRIPT_DIR = Path(
     r"C:\Users\jyk17\.cursor\projects\c-DEV-BR-UnitConvertor-06\agent-transcripts"
@@ -25,8 +25,8 @@ def main() -> None:
         "|------|-----|",
         f"| 보고서 | [{REPORT_NAME}.md](../Report/{REPORT_NAME}.md) |",
         "| 브랜치 | `refactoring` → PR 머지 → `B_06` → `refactoring` 재생성 |",
-        "| 선행 | [03_UnitConvertor_06_Green_TDD_Implementation_Progress.md]"
-        "(03_UnitConvertor_06_Green_TDD_Implementation_Progress.md) |",
+        "| 선행 | [04_UnitConvertor_06_Golden_Master_Refactoring_Progress.md]"
+        "(04_UnitConvertor_06_Golden_Master_Refactoring_Progress.md) |",
         "",
         "---",
         "",
@@ -67,17 +67,15 @@ def main() -> None:
 
     lines.extend(
         [
-            "## Session — Workspace summary (report 04 scope)",
+            "## Session — Workspace summary (report 05 scope)",
             "",
             "### Topics covered",
             "",
-            "1. Git: delete `green` branch; create/push `refactoring` from `B_06`",
-            "2. Golden Master: `golden_master_expected.txt`, approve pattern, GM-TC-01~04",
-            "3. `tests/test_golden_master.py`, `pytest -m golden_master` (4 passed)",
-            "4. README Golden Master To-Do (GM-01~GM-09); GM-08 manual branch protection",
-            "5. CI: `.github/workflows/golden_master.yml` (`Golden Master Regression`)",
-            "6. approvaltests vs 자체 Golden Master — 자체 방식 유지",
-            "7. Report 04 + transcript export + push/PR/merge B_06 + refactoring 재분기",
+            "1. Dual-Track REFACTOR: control dedupe, data load extract, CLI adapter, GM subprocess",
+            "2. DEF-006: CLI parse error exit code 1 + boundary tests",
+            "3. ECB/BCE separation verification; 60 pytest PASS",
+            "4. Coverage entity/boundary; Report 05 + transcript export",
+            "5. Push refactoring; PR → B_06; merge (pending gh CLI)",
             "",
         ]
     )
