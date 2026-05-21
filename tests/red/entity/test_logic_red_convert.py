@@ -38,8 +38,17 @@ class TestLogicRedConvert:
         result = engine.convert("feet", 1.0, "meter")
         assert result == pytest.approx(0.30480, abs=1e-5)
 
-    def test_logic_convert_all_meter_returns_all_registered_units(self) -> None:
-        pytest.fail("RED")
+    def test_logic_convert_all_meter_returns_all_registered_units(
+        self, defaults_registry: UnitRegistry
+    ) -> None:
+        # TC-B-04: convertAll("meter", 1.0)
+        engine = ConversionEngine(defaults_registry)
+        lines = engine.convert_all("meter", 1.0)
+        assert len(lines) == 3
+        by_unit = {line.target_unit: line.magnitude for line in lines}
+        assert by_unit["feet"] == pytest.approx(FEET_PER_METER, abs=1e-5)
+        assert by_unit["yard"] == pytest.approx(YARD_PER_METER, abs=1e-5)
+        assert by_unit["meter"] == pytest.approx(1.0, abs=1e-5)
 
     def test_logic_convert_negative_meter_raises_value_error(self) -> None:
         pytest.fail("RED")
