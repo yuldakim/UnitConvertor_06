@@ -15,6 +15,7 @@
 - [기여 가이드 (Contributing)](#기여-가이드-contributing)
 - [라이선스](#라이선스)
 - [RED 단계 To-Do 리스트](#red-단계-to-do-리스트)
+- [Golden Master 회귀 안전장치](#golden-master-회귀-안전장치)
 - [GREEN 단계 To-Do 리스트](#green-단계-to-do-리스트)
 
 ---
@@ -205,6 +206,9 @@ flowchart TB
 # 전체 테스트
 pytest
 
+# Golden Master 회귀 (Refactoring 전·후)
+pytest -m golden_master -v
+
 # 커버리지 (레이어별 목표는 PRD §4.3)
 pytest --cov=entity --cov=boundary --cov=control --cov=data --cov-report=term-missing
 ```
@@ -386,6 +390,32 @@ meter,2.5,yard,2.7
 
 - [x] defect_list.md 생성 및 발견 결함 기록 — [docs/defect_list.md](docs/defect_list.md) (DEF-001~008)
 - [x] Dual-Track RED 명세 — [docs/testing/RED-dual-track-tests.md](docs/testing/RED-dual-track-tests.md)
+
+---
+
+## Golden Master 회귀 안전장치
+
+> Refactoring 시작 전 구축. GREEN 완료 후 즉시 적용.
+
+### 기준 파일 생성
+
+- [x] GM-01: golden_master_expected.txt 생성 (meter:2.5 기준 출력)
+- [x] GM-02: feet:1.0 / yard:1.0 / meter:0.0 시나리오 추가
+- [x] GM-03: git add tests/golden_master_expected.txt (버전 관리 포함)
+
+### 테스트 코드
+
+- [x] GM-04: test_golden_master.py + golden_master_expected.txt 작성
+- [x] GM-05: approve 패턴 적용 (파일 없으면 생성, 있으면 비교)
+- [x] GM-06: pytest -m golden_master -v → PASS 확인
+
+### CI 연동
+
+- [x] GM-07: .github/workflows/golden_master.yml 작성
+- [ ] GM-08: PR 머지 차단 (required status check) 설정 — **GitHub 저장소 설정에서 수동** (아래 참고)
+- [x] GM-09: Refactoring 후 Golden Master 재실행 → PASS 확인
+
+**GM-08 수동 설정 (저장소 Admin):** Settings → Branches → Branch protection → `main` / `refactoring` 등 → **Require status checks** → `Golden Master Regression` 선택.
 
 ---
 
