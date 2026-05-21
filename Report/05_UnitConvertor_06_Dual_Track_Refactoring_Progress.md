@@ -34,6 +34,7 @@ Report 04(Golden Master 4건 + CI) 이후 **Dual-Track REFACTOR** 5커밋을 `re
 | `0e81f87` | `refactor(boundary)`: `cli_adapter` 추출, `UnitConverter` thin entry |
 | `4d37b1e` | `test(golden-master)`: CLI subprocess ↔ App 동치 + 프롬프트 동행 캡처 수정 |
 | `5077497` | `fix(boundary)`: CLI 파싱 실패 `exit 1` (DEF-006) |
+| `777267f` | `test(boundary)`: parser·cli_adapter·package export → **boundary 100%** |
 
 ---
 
@@ -156,10 +157,9 @@ HTML 리포트: `htmlcov/index.html`
 
 | 단계 | 상태 |
 |------|------|
-| 로컬 커밋 5건 + 본 보고서 | 완료 |
-| `git push origin refactoring` | **실행 예정** |
-| PR `refactoring` → `B_06` | **gh CLI 미설치** → 수동 생성 필요 (§8) |
-| PR 리뷰·머지 | 사용자 또는 GitHub UI |
+| 로컬 커밋 7건 + 보고서 | 완료 · `origin/refactoring` pushed |
+| PR `refactoring` → `B_06` | **gh 2.92.0 portable 설치됨** · `gh auth login` 필요 (§8) |
+| PR 리뷰·머지 | 인증 후 `gh pr create` 또는 GitHub UI |
 
 ---
 
