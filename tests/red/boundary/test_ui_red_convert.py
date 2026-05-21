@@ -20,8 +20,15 @@ class TestUiRedConvertHappyPath:
         output = converter_app.handle_convert_line("meter:2.5")
         assert "2.5 meter = 8.2 feet" in output.splitlines()
 
-    def test_ui_table_output_preserves_source_unit_and_value(self) -> None:
-        pytest.fail("RED")
+    def test_ui_table_output_preserves_source_unit_and_value(
+        self, converter_app: ConverterApp
+    ) -> None:
+        # TC-A-05: source 2.5 meter preserved in each line
+        output = converter_app.handle_convert_line("meter:2.5")
+        lines = output.splitlines()
+        assert len(lines) == 3
+        for line in lines:
+            assert line.startswith("2.5 meter = ")
 
 
 class TestUiRedJsonOutput:
