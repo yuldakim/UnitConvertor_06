@@ -58,5 +58,10 @@ class TestLogicRedConvert:
         with pytest.raises((ValueError, TypeError)):
             engine.convert("meter", -1.0, "feet")
 
-    def test_logic_convert_zero_meter_to_feet_is_zero(self) -> None:
-        pytest.fail("RED")
+    def test_logic_convert_zero_meter_to_feet_is_zero(
+        self, defaults_registry: UnitRegistry
+    ) -> None:
+        # TC-B-09: convert("meter", 0.0, "feet")
+        engine = ConversionEngine(defaults_registry)
+        result = engine.convert("meter", 0.0, "feet")
+        assert result == 0.0
