@@ -50,8 +50,13 @@ class TestLogicRedConvert:
         assert by_unit["yard"] == pytest.approx(YARD_PER_METER, abs=1e-5)
         assert by_unit["meter"] == pytest.approx(1.0, abs=1e-5)
 
-    def test_logic_convert_negative_meter_raises_value_error(self) -> None:
-        pytest.fail("RED")
+    def test_logic_convert_negative_meter_raises_value_error(
+        self, defaults_registry: UnitRegistry
+    ) -> None:
+        # TC-B-08: convert("meter", -1.0, "feet")
+        engine = ConversionEngine(defaults_registry)
+        with pytest.raises((ValueError, TypeError)):
+            engine.convert("meter", -1.0, "feet")
 
     def test_logic_convert_zero_meter_to_feet_is_zero(self) -> None:
         pytest.fail("RED")
